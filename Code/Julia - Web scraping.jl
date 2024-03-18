@@ -126,6 +126,15 @@ rename!(data, Dict("facility_id" => "#",
                    "ownership_category" => "Ownership Category",
                    "ownership_authority" => "Ownership Authority",
                    "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
+rename!(data, Dict("facility_id" => "#",
+                   "facility_code" => "Facility Code",
+                   "facility_name" => "Facility Name",
+                   "facility_type" => "Facility Type",
+                   "region" => "Region",
+                   "council" => "Council",
+                   "ownership_category" => "Ownership Category",
+                   "ownership_authority" => "Ownership Authority",
+                   "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
 
 
 for col in names(data)
@@ -133,5 +142,7 @@ for col in names(data)
 end
 
 
+@time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
+                      names(data), overwrite = true)
 @time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
                       names(data), overwrite = true)
