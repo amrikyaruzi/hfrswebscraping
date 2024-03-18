@@ -117,8 +117,15 @@ data = vcat(results...)
 data = DataFrame(data)
 
 
-rename(!data, [:"#", :`Facility Code`, :`Facility Code`, :`Facility Name`, :`Facility Type`, :"Region", :"Council",
-                :`Ownership Category`, :`Ownership Authority`, :`Operating Status`])
+rename!(data, Dict("facility_id" => "#",
+                   "facility_code" => "Facility Code",
+                   "facility_name" => "Facility Name",
+                   "facility_type" => "Facility Type",
+                   "region" => "Region",
+                   "council" => "Council",
+                   "ownership_category" => "Ownership Category",
+                   "ownership_authority" => "Ownership Authority",
+                   "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
 
 
 for col in names(data)
@@ -126,6 +133,5 @@ for col in names(data)
 end
 
 
-# CSV.write(data, "./Output/HFRS Julia 15 Mar 24_.csv")
-
-XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)), names(data), overwrite = true)
+@time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
+                      names(data), overwrite = true)
