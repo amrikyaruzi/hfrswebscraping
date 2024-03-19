@@ -1,0 +1,12 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Cascadia = "54eefc05-d75b-58de-a785-1a3403f0919f"
+Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Gumbo = "708ec375-b3d6-5a57-a7ce-8257bf98657a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Tidier = "f0413319-3358-4bb0-8e7c-0c83523a93bd"
+TidierVest = "969b988e-7aed-4820-b60d-bdec252047c4"
+XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
