@@ -109,7 +109,7 @@ function get_table_data(link)
 end
 
 # Defining tasks and responses/ response lengths
-target_links = all_links[1:5]
+target_links = all_links[1:length(all_links)]
 response_length = length(target_links)
 results = Vector{DataFrame}(undef, response_length)
 
