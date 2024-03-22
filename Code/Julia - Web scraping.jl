@@ -4,7 +4,7 @@ using HTTP, Gumbo, Cascadia
 using DataFrames
 using Tidier
 using Chain
-using CSV
+using Fmt
 using XLSX
 
 
@@ -79,7 +79,7 @@ function get_table_data(link)
 
     for tbody in eachmatch(Selector("tbody"), table_html)
       for tr in eachmatch(Selector("tr"), tbody)
-        facility_id = nodeText(tr[1])
+        facility_id = Parse(Int, nodeText(tr[1]))
         facility_code = nodeText(tr[2])
         facility_name = nodeText(tr[3])
         facility_type = nodeText(tr[4])
@@ -134,8 +134,8 @@ rename!(data, Dict("facility_id" => "#",
                    "ownership_category" => "Ownership Category",
                    "ownership_authority" => "Ownership Authority",
                    "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
-
-
+                   
+                   
 for col in names(data)
     println("Column: $col, Type: $(eltype(data[!, col]))")
 end
