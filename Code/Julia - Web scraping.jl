@@ -141,5 +141,5 @@ for col in names(data)
 end
 
 
-@time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
+XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
                       names(data), overwrite = true)
