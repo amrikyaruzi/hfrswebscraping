@@ -52,7 +52,7 @@ all_links = append!(all_links_private, all_links_public)
 # Getting table headers
 
 function get_table_headers()
-  response = HTTP.get(all_links)
+  response = HTTP.get(all_links[1])
   html = parsehtml(String(response.body))
   table_html = eachmatch(Selector(".kv-grid-table.table.table-bordered.table-striped.kv-table-wrap"), html.root)[1]
 
@@ -140,6 +140,7 @@ for col in names(data)
     println("Column: $col, Type: $(eltype(data[!, col]))")
 end
 
+date_today = Dates.format(Dates.today(), dateformat"dd u Y")
 
-XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
+XLSX.writetable("./Output/HFRS Julia $(date_today).xlsx", collect(eachcol(data)),
                       names(data), overwrite = true)
