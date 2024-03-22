@@ -13,10 +13,14 @@ public_start_url = "https://hfrs.moh.go.tz/web/index.php?r=portal%2Fquick-search
 
 
 function last_page(start_page)
-  response = HTTP.get(start_page)
-  html = parsehtml(String(response.body))
-  last_page_path = eachmatch(Selector(".page-item.last .page-link"), html.root)[1].attributes["href"]
-  parse(Int, match(r"\d*$", last_page_path).match)
+  try
+    response = HTTP.get(start_page, retry = true, retries = 5)
+    html = parsehtml(String(response.body))
+    last_page_path = eachmatch(Selector(".page-item.last .page-link"), html.root)[1].attributes["href"]
+    parse(Int, match(r"\d*$", last_page_path).match)
+  catch
+    @info "Could not resolve $start_page"
+  end
 end
 
 
@@ -48,7 +52,7 @@ all_links = append!(all_links_private, all_links_public)
 # Getting table headers
 
 function get_table_headers()
-  response = HTTP.get(all_links[1])
+  response = HTTP.get(all_links)
   html = parsehtml(String(response.body))
   table_html = eachmatch(Selector(".kv-grid-table.table.table-bordered.table-striped.kv-table-wrap"), html.root)[1]
 
@@ -66,42 +70,46 @@ get_table_headers()
 
 function get_table_data(link)
   
-  response = HTTP.get(link)
-  html = parsehtml(String(response.body))
-  table_html = eachmatch(Selector(".kv-grid-table.table.table-bordered.table-striped.kv-table-wrap"), html.root)[1]
+  try
+    response = HTTP.get(link, retry = true, retries = 5)
+    html = parsehtml(String(response.body))
+    table_html = eachmatch(Selector(".kv-grid-table.table.table-bordered.table-striped.kv-table-wrap"), html.root)[1]
 
-  table_data = DataFrame()
+    table_data = DataFrame()
 
-  for tbody in eachmatch(Selector("tbody"), table_html)
-    for tr in eachmatch(Selector("tr"), tbody)
-      facility_id = nodeText(tr[1])
-      facility_code = nodeText(tr[2])
-      facility_name = nodeText(tr[3])
-      facility_type = nodeText(tr[4])
-      region = nodeText(tr[5])
-      council = nodeText(tr[6])
-      ownership_category = nodeText(tr[7])
-      ownership_authority = nodeText(tr[8])
-      operating_status = nodeText(tr[9])
+    for tbody in eachmatch(Selector("tbody"), table_html)
+      for tr in eachmatch(Selector("tr"), tbody)
+        facility_id = nodeText(tr[1])
+        facility_code = nodeText(tr[2])
+        facility_name = nodeText(tr[3])
+        facility_type = nodeText(tr[4])
+        region = nodeText(tr[5])
+        council = nodeText(tr[6])
+        ownership_category = nodeText(tr[7])
+        ownership_authority = nodeText(tr[8])
+        operating_status = nodeText(tr[9])
   
-      """"row_data = DataFrame(facility_id = facility_id, facility_code = facility_code, facility_name = facility_name,
-      facility_type = facility_type, region = region, council = council, ownership_category = ownership_category,
-      ownership_authority = ownership_authority, operating_status = operating_status)"""
+        
 
-      row_data = DataFrame(facility_id = facility_id, facility_code = facility_code,
-      facility_name = facility_name, facility_type = facility_type, region = region,
-      council = council, ownership_category = ownership_category, ownership_authority = ownership_authority,
-      operating_status = operating_status)
+        row_data = DataFrame(facility_id = facility_id, facility_code = facility_code,
+        facility_name = facility_name, facility_type = facility_type, region = region,
+        council = council, ownership_category = ownership_category, ownership_authority = ownership_authority,
+        operating_status = operating_status)
   
-      append!(table_data, row_data)
+        append!(table_data, row_data)
+      end
+      #row_data
     end
-    #row_data
+    table_data
+
+  catch
+    @info "Could not resolve $link"
   end
-  table_data
+  
 end
 
 # Defining tasks and responses/ response lengths
-target_links = all_links
+target_links = all_links[1:5]
 response_length = length(target_links)
 results = Vector{DataFrame}(undef, response_length)
 
@@ -126,15 +134,6 @@ rename!(data, Dict("facility_id" => "#",
                    "ownership_category" => "Ownership Category",
                    "ownership_authority" => "Ownership Authority",
                    "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
-rename!(data, Dict("facility_id" => "#",
-                   "facility_code" => "Facility Code",
-                   "facility_name" => "Facility Name",
-                   "facility_type" => "Facility Type",
-                   "region" => "Region",
-                   "council" => "Council",
-                   "ownership_category" => "Ownership Category",
-                   "ownership_authority" => "Ownership Authority",
-                   "operating_status" => "Operating Status")) # rename! does it inplace. `rename` creates a copy
 
 
 for col in names(data)
@@ -142,7 +141,5 @@ for col in names(data)
 end
 
 
-@time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
-                      names(data), overwrite = true)
 @time XLSX.writetable("./Output/HFRS Julia 18 Mar 24.xlsx", collect(eachcol(data)),
                       names(data), overwrite = true)
